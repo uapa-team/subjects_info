@@ -1,0 +1,26 @@
+<form action="{% url 'submit_form' %}" method="post">
+    {% csrf_token %}
+    <p>
+        dni: {{ dni }}
+        </br>
+        2019-2S
+    </p>
+
+    <table style="width:100%; text-align: center">
+        <tr>
+            <th>Nombre de la materia</th>
+            <th>Código de la materia</th>
+            <th>Número de horas de dedicación presencial</th>
+            <th>Número de horas de trabajo autónomo</th>
+            <th>Número de horas de acompañamieto</th>
+        </tr>
+        <tr>
+            <td>Cálculo</td>
+            <td>1234567</td>
+            <td><input type="text" name="hours" id="1"></td>
+            <td><input type="text" name="hours" id="2"></td>
+            <td><input type="text" name="hours" id="3"></td>
+        </tr>
+    </table>
+    <input type="submit" value="Enviar">
+</form>
