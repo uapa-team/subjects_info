@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from .models import PersonSubject
 from django.http import HttpResponse
-# from .sia_script.EstudianteSia import EstudianteSia
+from .sia_script.EstudianteSia import EstudianteSia
+from .communication import get_dni, get_subject_name
 from django_auth_ldap.backend import LDAPBackend
 
 
@@ -9,27 +10,18 @@ def index(request):
     return render(request, 'subjects_hours/login.html')
 
 
-def survey_view(request):
-    return HttpResponse("prueba")
-#     if request.method == 'POST':
-#         dni = request.POST['dni']
-#         student = EstudianteSia(dni)
-#         context = {
-#             'dni': dni,
-#             'carrers': {}
-#         }
-
-#         for ha in student.dp.ha:
-#             context[ha] = {
-#                 'name': student.dp.ha[ha]['programa'].split('|')[1],
-#                 'schedule': []
-#             }
-
-#         return render(request, 'subjects_hours/form.html', context)
-#     else:
-#         return render(request, 'subjects_hours/login.html')
-
-
+def survey_view(request, user=''):
+    if request.method == 'POST':
+        dni = get_dni(user)
+        student = EstudianteSia(dni)
+        context = {
+            'dni': dni,
+            'schedule': student.schedule,
+            'names': [get_subject_name(code) for code in student.schedule[0]]
+        }
+        return render(request, 'subjects_hours/form.html', context)
+    else:
+        return render(request, 'subjects_hours/login.html')
 def submit_form(request):
     if request.method == 'POST':
         hours = request.POST.getlist('hours')
@@ -51,6 +43,6 @@ def login(request):
         if user is None:
             return HttpResponse('Not Authenticated! :c')
         else:
-            return HttpResponse('Authenticated!')
+            return survey_view(request, username)
     else:
         return render(request, 'subjects_hours/login.html')
