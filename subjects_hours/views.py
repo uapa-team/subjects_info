@@ -16,12 +16,16 @@ def survey_view(request, user=''):
         student = EstudianteSia(dni)
         context = {
             'dni': dni,
-            'schedule': student.schedule,
-            'names': [get_subject_name(code) for code in student.schedule[0]]
+            'schedule': [
+                [code[1:],
+                get_subject_name(code.split(' - ')[0][1:])] 
+                for code in student.schedule[0]
+                ]
         }
         return render(request, 'subjects_hours/form.html', context)
     else:
         return render(request, 'subjects_hours/login.html')
+        
 def submit_form(request):
     if request.method == 'POST':
         hours = request.POST.getlist('hours')
