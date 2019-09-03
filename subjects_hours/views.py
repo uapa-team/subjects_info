@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import PersonSubject
+from .models import PersonSubject, Subject
 from django.http import HttpResponse
 from .sia_script.EstudianteSia import EstudianteSia
 from .communication import get_dni, get_subject_name
@@ -28,11 +28,28 @@ def survey_view(request, user=''):
         
 def submit_form(request):
     if request.method == 'POST':
+        codes = [code.split(' - ')[0] for code in request.POST.getlist('code')]
+        names = request.POST.getlist('name')
+        
+        for i in range(len(codes)):
+            try:
+                Subject.objects.get(pk=codes[i])
+            except Exception:
+                Subject(cod_subject=codes[i], name=names[i]).save()
+        
         hours = request.POST.getlist('hours')
-        subject = PersonSubject(dni_person="123456798", period="2019-01", dedication_hours=hours[0],
-                                autonomous_hours=hours[1], accompaniment_hours=hours[2], cod_subject_id="1234567")
-        subject.save()
-        return HttpResponse('')
+
+        for i in range(0, len(hours), 3):
+            subject = PersonSubject(
+                dni_person=request.POST.get('dni'),
+                period="2019-2S",
+                dedication_hours=hours[i+0],
+                autonomous_hours=hours[i+1],
+                accompaniment_hours=hours[i+2],
+                cod_subject_id=codes[int(i/3)]
+                )
+            subject.save()
+        return HttpResponse(Subject.objects)
     else:
         return render(request, 'form.html')
 

@@ -5,6 +5,7 @@
         </br>
         2019-2S
     </p>
+    <input type="hidden" name="dni" value = "{{ dni }}">
     <table style="width:100%; text-align: center">
         <tr>
             <th>Nombre de la materia</th>
@@ -17,10 +18,12 @@
         <tr>
             <td>{{ subject.1 }}</td>
             <td>{{ subject.0 }}</td>
-            <td><input type="text" name="hours" id="1"></td>
-            <td><input type="text" name="hours" id="2"></td>
-            <td><input type="text" name="hours" id="3"></td>
+            <td><input type="text" name="hours"></td>
+            <td><input type="text" name="hours"></td>
+            <td><input type="text" name="hours"></td>
         </tr>
+        <input type="hidden" name="name" value = "{{ subject.1 }}">
+        <input type="hidden" name="code" value = "{{ subject.0 }}">
         {% endfor %}
     </table>
     <input type="submit" value="Enviar">
