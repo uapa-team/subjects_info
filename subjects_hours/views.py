@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from .sia_script.EstudianteSia import EstudianteSia
 from .communication import get_dni, get_subject_name
 from django_auth_ldap.backend import LDAPBackend
-
+from datetime import date
 
 def index(request):
     return render(request, 'subjects_hours/login.html')
@@ -47,6 +47,7 @@ def submit_form(request):
                 autonomous_hours=hours[i+1],
                 accompaniment_hours=hours[i+2],
                 cod_subject_id=codes[int(i/3)]
+                date = date.today()
                 )
             subject.save()
         return HttpResponse(Subject.objects)
