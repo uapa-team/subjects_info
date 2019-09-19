@@ -22,6 +22,12 @@ def get_dni(username):
   result = make_query(query)
   return result[0][0]
 
+def get_name(username):
+  query = 'select nombre_completo from personas_unal_uapa where dni_persona = "{}";'
+  query = query.format(get_dni(username))
+  result = make_query(query)
+  return result[0][0]
+
 def get_subject_name(code):
   query = 'select nombre_materia from v_materias where cod_materia = "{}";'
   query = query.format(code)
