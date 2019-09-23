@@ -110,7 +110,7 @@ public/*
 .vscode/
 
 # sia script
-sia_script/
+# sia_script/
 
 #chingaza
 chingaza.pem

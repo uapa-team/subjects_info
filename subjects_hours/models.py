@@ -1,5 +1,7 @@
+from django.utils import timezone
 from django.db import models
 from datetime import date
+
 
 class Subject(models.Model):
     cod_subject = models.CharField(max_length=20, primary_key=True)
@@ -14,4 +16,4 @@ class PersonSubject(models.Model):
     dedication_hours = models.IntegerField()
     autonomous_hours = models.IntegerField()
     accompaniment_hours = models.IntegerField()
-    date = models.DateField(default=date.today())
+    date = models.DateField(default=timezone.now)

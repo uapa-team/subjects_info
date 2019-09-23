@@ -1,7 +1,7 @@
 import json
 from django.shortcuts import render
 from .models import PersonSubject, Subject
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .sia_script.EstudianteSia import EstudianteSia
 from .communication import get_dni, get_name, get_subject_name
 from django_auth_ldap.backend import LDAPBackend
@@ -10,8 +10,10 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 @csrf_exempt
-def survey_view(request, user=''):
+def survey_view(request):
     if request.method == 'POST':
+        user = request.POST.get('username')
+        print(user)
         dni = get_dni(user)
         student = EstudianteSia(dni)
 
@@ -28,8 +30,8 @@ def survey_view(request, user=''):
                     'accompaniment': ''
                 })
                 count += 1
-        response = {'subjects': subjects, 'username': user}
-        return HttpResponse(response, status=200)
+        response = {'username': user, 'subjects': subjects}
+        return JsonResponse(response, status=200)
     else:
         return render(request, 'subjects_hours/login.html')
 
@@ -41,11 +43,11 @@ def submit_form(request):
         dni = get_dni(data['username'])
 
         for subject in data['subjects']:
+            code = subject['subject_cod'].split(' - ')[0]
             try:
                 Subject.objects.get(pk=subject['subject_cod'])
             except Exception:
-                Subject(cod_subject=subject['subject_cod'],
-                        name=subject['subject_name']).save()
+                Subject(cod_subject=code, name=subject['subject_name']).save()
 
             PersonSubject(
                 dni_person=dni,
@@ -53,11 +55,11 @@ def submit_form(request):
                 dedication_hours=subject['dedication_hours'],
                 autonomous_hours=subject['autonomous_hours'],
                 accompaniment_hours=subject['accompaniment'],
-                cod_subject_id=subject['subject_cod']
+                cod_subject_id=code
             ).save()
         return HttpResponse(True, status=200)
     else:
-        return render(request, 'form.html')
+        return HttpResponse(False, status=400)
 
 
 @csrf_exempt
