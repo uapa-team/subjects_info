@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from .sia_script.EstudianteSia import EstudianteSia
 from .communication import get_dni, get_name, get_subject_name
 from django_auth_ldap.backend import LDAPBackend
+from datetime import date
 
 
 def index(request):
@@ -33,7 +34,8 @@ def survey_view(request, user=''):
         return HttpResponse(response, status=200)
     else:
         return render(request, 'subjects_hours/login.html')
-        
+
+
 def submit_form(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -43,16 +45,17 @@ def submit_form(request):
             try:
                 Subject.objects.get(pk=subject['subject_cod'])
             except Exception:
-                Subject(cod_subject=subject['subject_cod'], name=subject['subject_name']).save()
-            
+                Subject(cod_subject=subject['subject_cod'],
+                        name=subject['subject_name']).save()
+
             PersonSubject(
-                dni_person = dni, 
-                period = "2019-2S", #TODO: Calcular periodo
-                dedication_hours = subject['dedication_hours'],
-                autonomous_hours = subject['autonomous_hours'],
-                accompaniment_hours = subject['accompaniment'],
-                cod_subject_id = subject['subject_cod']
-                ).save()
+                dni_person=dni,
+                period="2019-2S",  # TODO: Calcular periodo
+                dedication_hours=subject['dedication_hours'],
+                autonomous_hours=subject['autonomous_hours'],
+                accompaniment_hours=subject['accompaniment'],
+                cod_subject_id=subject['subject_cod']
+            ).save()
         return HttpResponse(True, status=200)
     else:
         return render(request, 'form.html')
