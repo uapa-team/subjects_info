@@ -6,12 +6,10 @@ from .sia_script.EstudianteSia import EstudianteSia
 from .communication import get_dni, get_name, get_subject_name
 from django_auth_ldap.backend import LDAPBackend
 from datetime import date
+from django.views.decorators.csrf import csrf_exempt
 
 
-def index(request):
-    return render(request, 'subjects_hours/login.html')
-
-
+@csrf_exempt
 def survey_view(request, user=''):
     if request.method == 'POST':
         dni = get_dni(user)
@@ -36,6 +34,7 @@ def survey_view(request, user=''):
         return render(request, 'subjects_hours/login.html')
 
 
+@csrf_exempt
 def submit_form(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -61,6 +60,7 @@ def submit_form(request):
         return render(request, 'form.html')
 
 
+@csrf_exempt
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
