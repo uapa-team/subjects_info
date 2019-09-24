@@ -1,6 +1,6 @@
 import json
 from django.shortcuts import render
-from .models import PersonSubject, Subject
+from .models import Subject, PersonSchedule, RegisterHour
 from django.http import HttpResponse, JsonResponse
 from .sia_script.EstudianteSia import EstudianteSia
 from .communication import get_dni, get_name, get_subject_name
@@ -13,23 +13,40 @@ from django.views.decorators.csrf import csrf_exempt
 def survey_view(request):
     if request.method == 'POST':
         user = request.POST.get('username')
-        print(user)
         dni = get_dni(user)
-        student = EstudianteSia(dni)
+        schedule = PersonSchedule.objects.filter(
+            dni_person=dni, period='2019-2S')
 
-        subjects = []
+        if schedule.exists():
+            codes = [sub.cod_subject.cod_subject for sub in schedule]
+        else:
+            student = EstudianteSia(dni)
+            codes = []
+            for schedules in student.schedule:
+                for code in schedules:
+                    info = code.split(' - ')
+                    code = info[0][1:]
+                    if not Subject.objects.filter(cod_subject=code).exists():
+                        Subject(cod_subject=code,
+                                name=get_subject_name(code)).save()
+                    PersonSchedule(
+                        dni_person=dni,
+                        cod_subject=Subject.objects.get(pk=code),
+                        group=info[1], period='2019-2S'
+                    ).save()
+                    codes.append(code)
         count = 0
-        for schedule in student.schedule:
-            for code in schedule:
-                subjects.append({
-                    'key': count,
-                    'subject_cod': code[1:],
-                    'subject_name': get_subject_name(code.split(' - ')[0][1:]),
-                    'dedication_hours': '',
-                    'autonomous_hours': '',
-                    'accompaniment': ''
-                })
-                count += 1
+        subjects = []
+        for code in codes:
+            subjects.append({
+                'key': count,
+                'subject_cod': code,
+                'subject_name': get_subject_name(code),
+                'dedication_hours': '',
+                'autonomous_hours': '',
+                'accompaniment': ''
+            })
+            count += 1
         response = {'username': user, 'subjects': subjects}
         return JsonResponse(response, status=200)
     else:
@@ -43,21 +60,15 @@ def submit_form(request):
         dni = get_dni(data['username'])
 
         for subject in data['subjects']:
-            code = subject['subject_cod'].split(' - ')[0]
-            try:
-                Subject.objects.get(pk=subject['subject_cod'])
-            except Exception:
-                Subject(cod_subject=code, name=subject['subject_name']).save()
-
-            PersonSubject(
-                dni_person=dni,
-                period="2019-2S",  # TODO: Calcular periodo
+            code = subject['subject_cod']
+            RegisterHour(
+                schedule=PersonSchedule.objects.filter(
+                    dni_person=dni, cod_subject=code, period='2019-2S')[0],
                 dedication_hours=subject['dedication_hours'],
                 autonomous_hours=subject['autonomous_hours'],
-                accompaniment_hours=subject['accompaniment'],
-                cod_subject_id=code
+                accompaniment_hours=subject['accompaniment']
             ).save()
-        return HttpResponse(True, status=200)
+        return HttpResponse(True, status=201)
     else:
         return HttpResponse(False, status=400)
 
