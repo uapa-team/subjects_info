@@ -109,8 +109,5 @@ public/*
 # Visual code
 .vscode/
 
-# sia script
-# sia_script/
-
 #chingaza
 chingaza.pem

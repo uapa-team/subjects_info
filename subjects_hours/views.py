@@ -1,7 +1,6 @@
 import json
 from .models import Subject, PersonSchedule, RegisterHour
 from django.http import HttpResponse, JsonResponse
-from .sia_script.EstudianteSia import EstudianteSia
 from .communication import get_dni, get_name, get_subject_name
 from django_auth_ldap.backend import LDAPBackend
 from django.views.decorators.csrf import csrf_exempt
@@ -17,14 +16,7 @@ def survey_view(request):
     if schedule.exists():
         codes = [sub.cod_subject.cod_subject for sub in schedule]
     else:
-        student = EstudianteSia(dni)
         codes = []
-        for schedules in student.schedule:
-            for code in schedules:
-                info = code.split(' - ')
-                code = info[0][1:]
-                create_schedule(dni, code, info[1])
-                codes.append(code)
     count = 0
     subjects = []
     for code in codes:
