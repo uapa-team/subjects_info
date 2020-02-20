@@ -5,3 +5,5 @@ django-cors-headers==3.1.0
 beautifulsoup4==4.8.0
 mysql-connector-python==8.0.17
 lxml==4.4.1
+djangorestframework
+djangorestframework-jwt
