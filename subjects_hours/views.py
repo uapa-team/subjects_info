@@ -12,6 +12,7 @@ from django.contrib.auth import logout
 
 CURRENT_PERIOD = '2020-1S'
 
+
 @api_view(["POST"])
 @permission_classes((AllowAny,))
 def login(request):
@@ -27,7 +28,8 @@ def login(request):
     # pylint: disable=no-member
     token, _ = Token.objects.get_or_create(user=user)
     return JsonResponse({'token': token.key, 'name': get_name(username)},
-                        status=HTTP_200_OK) 
+                        status=HTTP_200_OK)
+
 
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
@@ -35,6 +37,7 @@ def api_logout(request):
     request.auth.delete()
     logout(request)
     return JsonResponse({'successful': 'Logout Success'}, status=HTTP_200_OK)
+
 
 @api_view(["GET"])
 def get_schedule(request):
@@ -64,6 +67,7 @@ def get_schedule(request):
         count += 1
     return JsonResponse({'username': user, 'subjects': subjects}, status=HTTP_200_OK)
 
+
 @api_view(["POST"])
 def create_schedule(request):
     # pylint: disable=no-member
@@ -73,18 +77,19 @@ def create_schedule(request):
     errors = []
     for subject in subjects:
         try:
-            ref = Subject.objects.get(pk=subject['code'])
+            ref = Subject.objects.get(pk=subject['subject_cod'])
             if len(PersonSchedule.objects.filter(
-                dni_person=dni, cod_subject= ref,
+                dni_person=dni, cod_subject=ref,
                 group=subject['group'], period=CURRENT_PERIOD
             )) == 0:
                 PersonSchedule(
-                    dni_person=dni, cod_subject= ref,
+                    dni_person=dni, cod_subject=ref,
                     group=subject['group'], period=CURRENT_PERIOD
                 ).save()
         except:
             errors.append(subject['code'])
     return JsonResponse({'errors': errors}, status=HTTP_200_OK)
+
 
 @api_view(["POST"])
 def submit_form(request):
@@ -103,6 +108,7 @@ def submit_form(request):
         ).save()
     return JsonResponse({'registered': 'Ok'}, status=HTTP_201_CREATED)
 
+
 @api_view(["GET"])
 @permission_classes((AllowAny,))
 def get_subjects(_):
@@ -111,7 +117,7 @@ def get_subjects(_):
     response = []
     for subject in subjects:
         response.append({
-            'code': subject.cod_subject,
-            'name': subject.name
+            'subject_cod': subject.cod_subject,
+            'subject_name': subject.name
         })
     return JsonResponse({'subjects': response}, status=200)
