@@ -121,3 +121,16 @@ def get_subjects(_):
             'subject_name': subject.name
         })
     return JsonResponse({'subjects': response}, status=200)
+
+
+@api_view(["GET"])
+def get_code(request):
+    name = json.loads(request.body)['subject_name']
+    try:
+        subject = Subject.objects.get(name=name)
+        return JsonResponse({
+            'subject_cod': subject.cod_subject,
+            'subject_name': subject.name
+        }, status=HTTP_200_OK)
+    except:
+        return JsonResponse({}, status=HTTP_404_NOT_FOUND)
