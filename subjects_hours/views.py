@@ -123,7 +123,7 @@ def get_subjects(_):
     return JsonResponse({'subjects': response}, status=200)
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 def get_code(request):
     name = json.loads(request.body)['subject_name']
     try:
